@@ -1,7 +1,7 @@
 # MathExpr
 This is an application written by Tolga Akyay for SN Systems. The program
 parses a mathematical expression from standard input and evaluates the
-numberical result. If the expression can't be parsed N/A is returned.
+numerical result. If the expression can't be parsed N/A is returned.
 
 ## Installation
 The program is written originally by Visual Studio 2019 (C++ 14).
