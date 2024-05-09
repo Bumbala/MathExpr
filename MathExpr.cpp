@@ -1,6 +1,6 @@
 /**
- * MathExpr is a command-line program to evaluate a simple maths expression.
- * Written by Tolga Akyay for SN Systems
+ * MathExpr is a command-line program to evaluate a simple mathematical expression.
+ * Written by Tolga Akyay for SN Systems.
  */
 
 #include <iostream>
@@ -84,15 +84,10 @@ int applyOperator(const int a, const int b, const char op)
     return 0;
 }
 
-int evaluate(const deque<int>& operands, const deque<char>* operators)
-{
-    return 0;
-}
-
 /**
  * Parses and evaluates the given mathematical expression.
  * @param expression The expression as string to evaluate.
- * @param result The mathematical result of the expression.
+ * @param result The numerical result of the expression.
  * @returns true, if it was evaluated successfully, otherwise false.
  */
 bool evaluate(const char* expression, int& result)
@@ -104,58 +99,86 @@ bool evaluate(const char* expression, int& result)
     stack<char> operators;
 
     string str(expression);
-    size_t len = str.length();
+    const size_t len = str.length();
 
-    // Parse the expression char by char.
-    int i;
-    for (i = 0; i < len; i++)
+    int i, a, b;
+    char ch, op;
+
+    // Parse the expression in reverse order since there is no precedence.
+    for (i = len - 1; i >= 0; i--)
     {
+        ch = str[i];
+
         // Skip if the token is whitespace.
-        if (isWhitespace(str[i]))
+        if (isWhitespace(ch))
             continue;
 
-        // Check for signed numbers as well.
-        if (isNumber(str[i]) || ((str[i] == '+' || str[i] == '-') && i + 1 < len && isNumber(str[i + 1])))
+        if (isNumber(ch))
         {
-            // Count the number of digits.
-            int count = 1;
-            for (int j = i + 1; j < len && isNumber(str[j]); j++)
+            // Parse the digits.
+            string numStr(1, ch);
+            int j;
+            for (j = i - 1; j >= 0 && isNumber(str[j]); j--)
             {
-                count++;
+                numStr.insert(0, 1, str[j]);
+            }
+            // The last character may be sign (+/-).
+            if (j >= 0 && (str[j] == '+' || str[j] == '-'))
+            {
+                numStr.insert(0, 1, str[j]);
             }
 
             // Parse the operand and store it.
-            int number = atoi(str.substr(i, count).c_str());
+            int number = atoi(numStr.c_str());
             operands.push(number);
 
-            i += (count - 1);
+            i -= (numStr.length() - 1);
         }
-        else if (isOperator(str[i]) || str[i] == '(')
+        else if (isOperator(ch) || ch == ')')
         {
-            operators.push('(');
+            operators.push(ch);
         }
-        else if (str[i] == ')')
+        else if (ch == '(')
         {
-            // Compute the parenthesis and store it.
-            while (!operators.empty() && operators.top() != '(')
+            // Compute the parenthesis and store the result.
+            while (!operators.empty() && operators.top() != ')')
             {
-                // We should have at least a pair of operands.
-                if (operands.size() < 2)
-                    return false;
+                if (operands.size() >= 2)
+                {
+                    // We should have at least a pair of operands.
+                    if (operands.size() < 2)
+                        return false;
 
-                int b = operands.top();
-                operands.pop();
+                    a = operands.top();
+                    operands.pop();
 
-                int a = operands.top();
-                operands.pop();
+                    b = operands.top();
+                    operands.pop();
 
-                char op = operators.top();
-                operators.pop();
+                    op = operators.top();
+                    operators.pop();
 
-                operands.push(applyOperator(a, b, op));
+                    // Division by zero?
+                    if (op == '/' && b == 0)
+                        return false;
+
+                    operands.push(applyOperator(a, b, op));
+                }
+                else
+                {
+                    // We have a single number inside parenthesis.
+                    a = operands.top();
+                    operands.pop();
+
+                    operands.push(a);
+                }
             }
 
-            // Pop the opening parenthesis
+            // Forgot to close the parenthesis.
+            if (operators.empty())
+                return false;
+
+            // Pop the close parenthesis.
             operators.pop();
         }
         else
@@ -172,18 +195,22 @@ bool evaluate(const char* expression, int& result)
     // Compute the result.
     while (!operators.empty())
     {
-        char op = operators.top();
+        op = operators.top();
         operators.pop();
 
         // We should have evaluated the brackets before.
         if (op == '(' || op == ')')
             return false;
 
-        int b = operands.top();
+        a = operands.top();
         operands.pop();
 
-        int a = operands.top();
+        b = operands.top();
         operands.pop();
+
+        // Division by zero?
+        if (op == '/' && b == 0)
+            return false;
 
         operands.push(applyOperator(a, b, op));
     }
