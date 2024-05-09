@@ -10,6 +10,10 @@
 
 using namespace std;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Checks whether the specified character is a whitespace.
  * @param ch The character to check.
@@ -252,3 +256,7 @@ int main()
 
     return 0;
 }
+
+#ifdef __cplusplus
+}
+#endif
