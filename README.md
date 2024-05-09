@@ -13,8 +13,8 @@ Launch the program and type your expression and hit "ENTER".
 You can type "exit" to quit the program.
 
 ## Notes
-The program does not take the multiplication and division precedence since
-it was not asked in the assignment. The expression is parsed left-to-right.
+The program does not take the multiplication and division precedence into account
+since it was not asked in the assignment. The expression is parsed left-to-right.
 Therefore, the following:
 
 2 + 3 * 5
